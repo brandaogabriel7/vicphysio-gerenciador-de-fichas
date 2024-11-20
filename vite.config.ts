@@ -1,3 +1,6 @@
+/// <reference types="vitest" />
+/// <reference types="vite/client" />
+
 import { defineConfig, loadEnv } from 'vite';
 import path from 'node:path';
 import electron from 'vite-plugin-electron/simple';
@@ -34,5 +37,10 @@ export default ({ mode }: { mode: string }) => {
               : {},
         }),
     ],
+    test: {
+      environment: 'jsdom',
+      globals: true,
+      setupFiles: './src/test-setup.ts',
+    },
   });
 };
