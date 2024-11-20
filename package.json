@@ -1,13 +1,20 @@
 {
   "name": "vicphysio-gerenciador-de-fichas",
+  "author": "Gabriel Brandão",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
+  "description": "Gerenciador de fichas de pacientes para fisioterapeutas e fichas de alunos para instrutores de Pilates",
   "type": "module",
+  "keywords": [],
+  "license": "ISC",
   "scripts": {
-    "dev": "vite",
-    "build": "tsc && vite build && electron-builder",
-    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
-    "preview": "vite preview"
+    "electron:dev": "VITE_BUILD_TARGET='electron' vite",
+    "electron:build": "tsc && VITE_BUILD_TARGET='electron' vite build && electron-builder",
+    "electron:build-windows": "tsc && VITE_BUILD_TARGET='electron' vite build && electron-builder --win",
+    "web:dev": "VITE_BUILD_TARGET='web' vite",
+    "web:build": "tsc && VITE_BUILD_TARGET='web' vite build",
+    "web:preview": "VITE_BUILD_TARGET='web' vite preview",
+    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0"
   },
   "dependencies": {
     "react": "^18.2.0",
