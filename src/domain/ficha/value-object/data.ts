@@ -5,7 +5,7 @@ export default class Data {
 
   constructor(data: string | Date, mensagemErro = 'Data inválida') {
     if (!data) {
-      throw new Error('Data de nascimento é obrigatória');
+      throw new Error(mensagemErro);
     }
 
     this._valor = new Date(data);
