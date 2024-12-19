@@ -1,25 +1,17 @@
-import { toISODateOnlyString } from '../../../utils/date-utils';
+import Data from './data';
 
 export default class DataNascimento {
-  private _valor: Date;
+  private _data: Data;
 
   constructor(dataNascimento: string | Date) {
-    if (!dataNascimento) {
-      throw new Error('Data de nascimento é obrigatória');
-    }
+    this._data = new Data(dataNascimento, 'Data de nascimento inválida');
 
-    this._valor = new Date(dataNascimento);
-
-    if (isNaN(this._valor.getTime())) {
-      throw new Error('Data de nascimento inválida');
-    }
-
-    if (this._valor > new Date()) {
+    if (this._data.valor > new Date()) {
       throw new Error('Data de nascimento não pode estar no futuro');
     }
   }
 
-  get valor(): string {
-    return toISODateOnlyString(this._valor);
+  formatar(): string {
+    return this._data.formatar();
   }
 }
