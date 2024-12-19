@@ -1,6 +1,6 @@
 import Cliente from './cliente';
 import { v4 as uuid } from 'uuid';
-import { Sexo, SexoEnum } from './sexo';
+import { Sexo, SexoEnum } from './enum/sexo';
 import DataNascimento from '../value-object/data-nascimento';
 
 describe('Cliente tests', () => {
