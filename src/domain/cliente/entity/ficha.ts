@@ -9,7 +9,8 @@ export default class Ficha {
   private _data?: DataGenerica;
 
   private _historiaMolestiaAtual?: string;
-  private _historiaPatologiaPregressa?: HistoriaPatologicaPregressa;
+  private _historiasPatologicasPregressas: Set<HistoriaPatologicaPregressa> =
+    new Set<HistoriaPatologicaPregressa>();
   private _qualidadeAlimentacao?: QualidadeAlimentacao;
   private _medicacoes?: string;
   private _observacoes?: string;
@@ -39,10 +40,6 @@ export default class Ficha {
     return this._historiaMolestiaAtual;
   }
 
-  get historiaPatologiaPregressa(): HistoriaPatologicaPregressa | undefined {
-    return this._historiaPatologiaPregressa;
-  }
-
   get qualidadeAlimentacao(): QualidadeAlimentacao | undefined {
     return this._qualidadeAlimentacao;
   }
@@ -55,18 +52,16 @@ export default class Ficha {
     return this._observacoes;
   }
 
+  get historiasPatologicasPregressas(): HistoriaPatologicaPregressa[] {
+    return Array.from(this._historiasPatologicasPregressas);
+  }
+
   alterarDataFicha(data: DataGenerica): void {
     this._data = data;
   }
 
   alterarHistoriaMolestiaAtual(historiaMolestiaAtual: string): void {
     this._historiaMolestiaAtual = historiaMolestiaAtual;
-  }
-
-  alterarHistoriaPatologiaPregressa(
-    historiaPatologiaPregressa: HistoriaPatologicaPregressa
-  ): void {
-    this._historiaPatologiaPregressa = historiaPatologiaPregressa;
   }
 
   alterarQualidadeAlimentacao(
@@ -81,5 +76,17 @@ export default class Ficha {
 
   alterarObservacoes(observacoes: string): void {
     this._observacoes = observacoes;
+  }
+
+  adicionarHistoriaPatologicaPregressa(
+    historiaPatologicaPregressa: HistoriaPatologicaPregressa
+  ): void {
+    this._historiasPatologicasPregressas.add(historiaPatologicaPregressa);
+  }
+
+  removerHistoriaPatologicaPregressa(
+    historiaPatologicaPregressa: HistoriaPatologicaPregressa
+  ): void {
+    this._historiasPatologicasPregressas.delete(historiaPatologicaPregressa);
   }
 }

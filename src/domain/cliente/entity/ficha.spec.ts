@@ -67,10 +67,34 @@ describe('Ficha tests', () => {
 
     it.each([
       ...Object.values(HistoriaPatologicaPregressaEnum).map((hpp) => [hpp]),
-    ])('deve alterar historia patologica pregressa para "%s"', (hma) => {
-      ficha.alterarHistoriaPatologiaPregressa(hma);
+    ])('deve adicionar historia patologica pregressa para "%s"', (hpp) => {
+      ficha.adicionarHistoriaPatologicaPregressa(hpp);
 
-      expect(ficha.historiaPatologiaPregressa).toBe(hma);
+      expect(ficha.historiasPatologicasPregressas).toContain(hpp);
+    });
+
+    it.each([
+      ...Object.values(HistoriaPatologicaPregressaEnum).map((hpp) => [hpp]),
+    ])('deve remover historia patologica pregressa para "%s"', (hpp) => {
+      ficha.adicionarHistoriaPatologicaPregressa(hpp);
+      ficha.removerHistoriaPatologicaPregressa(hpp);
+
+      expect(ficha.historiasPatologicasPregressas).not.toContain(hpp);
+    });
+
+    it('deve adicionar mais de uma historia patologica pregressa', () => {
+      const hpp1 = HistoriaPatologicaPregressaEnum.ETILISTA;
+      const hpp2 = HistoriaPatologicaPregressaEnum.SEDENTARISMO;
+
+      ficha.adicionarHistoriaPatologicaPregressa(hpp1);
+      ficha.adicionarHistoriaPatologicaPregressa(hpp2);
+
+      expect(ficha.historiasPatologicasPregressas).toContain(hpp1);
+      expect(ficha.historiasPatologicasPregressas).toContain(hpp2);
+
+      ficha.removerHistoriaPatologicaPregressa(hpp1);
+      expect(ficha.historiasPatologicasPregressas).not.toContain(hpp1);
+      expect(ficha.historiasPatologicasPregressas).toContain(hpp2);
     });
 
     it.each([...Object.values(QualidadeAlimentacaoEnum).map((qa) => [qa])])(
