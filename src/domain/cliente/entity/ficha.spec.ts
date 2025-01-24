@@ -6,6 +6,8 @@ import DataGenerica from '../value-object/data-generica';
 import { HistoriaPatologicaPregressaEnum } from './enum/historia-patologica-pregressa';
 import { QualidadeAlimentacaoEnum } from './enum/qualidade-alimentacao';
 import { TipoFichaEnum } from './enum/tipo-ficha';
+import CamposFichaFisioterapia from '../value-object/campos-ficha-fisioterapia';
+import CamposFichaPilates from '../value-object/campos-ficha-pilates';
 
 describe('Ficha tests', () => {
   it('deve falhar quando id está vazio', () => {
@@ -49,7 +51,7 @@ describe('Ficha tests', () => {
     }
   );
 
-  describe('campos comuns das fichas', () => {
+  describe('campos das fichas', () => {
     let ficha: Ficha;
     beforeEach(() => {
       const cliente = new Cliente(
@@ -140,5 +142,69 @@ describe('Ficha tests', () => {
         expect(ficha.observacoes).toBe(observacoes);
       }
     );
+
+    it('deve lançar um erro ao tentar preecher campos específicos de ficha não especificada', () => {
+      expect(() => ficha.preencherCamposEspecificos({})).toThrowError(
+        /tipo de ficha não especificado/i
+      );
+    });
+
+    it('deve retornar um objeto vazio se tipo de ficha for não especificado', () => {
+      ficha.alterarTipoFicha(TipoFichaEnum.PILATES);
+
+      ficha.preencherCamposEspecificos({ peso: 70, altura: 1.75 });
+
+      ficha.alterarTipoFicha(TipoFichaEnum.NAO_ESPECIFICADO);
+
+      expect(ficha.camposEspecificos).toStrictEqual({});
+
+      ficha.alterarTipoFicha(TipoFichaEnum.FISIOTERAPIA);
+
+      ficha.preencherCamposEspecificos({ testesReflexos: 'Testes/reflexos' });
+
+      ficha.alterarTipoFicha(TipoFichaEnum.NAO_ESPECIFICADO);
+
+      expect(ficha.camposEspecificos).toStrictEqual({});
+    });
+
+    it('deve preencher campos da ficha de pilates', () => {
+      const camposFichaPilates = new CamposFichaPilates({
+        peso: 70,
+        altura: 1.75,
+      });
+
+      ficha.alterarTipoFicha(TipoFichaEnum.PILATES);
+
+      ficha.preencherCamposEspecificos(camposFichaPilates);
+
+      expect(ficha.camposEspecificos).toStrictEqual(camposFichaPilates);
+    });
+
+    it('deve preencher campos da ficha de fisioterapia', () => {
+      const camposFichaFisioterapia = new CamposFichaFisioterapia({
+        testesReflexos: 'Testes/reflexos',
+        palpacao: 'Palpação',
+        nivelDor: 6,
+        inspecaoGeral: 'Inspeção geral',
+        movimentosAtivosPassivos: 'Movimentos ativos/passivos',
+        classificacaoInternacionalDeFuncionalidade:
+          'Classificação internacional de funcionalidade',
+        objetivoTerapeutico: 'Objetivo terapêutico',
+        frequenciaRespiratoria: 20,
+        pressaoArterial: {
+          valorSistolica: 120,
+          valorDiastolica: 80,
+        },
+        oxigenacao: 98,
+        autorizaUsoImagem: true,
+        outros: 'Outros',
+      });
+
+      ficha.alterarTipoFicha(TipoFichaEnum.FISIOTERAPIA);
+
+      ficha.preencherCamposEspecificos(camposFichaFisioterapia);
+
+      expect(ficha.camposEspecificos).toStrictEqual(camposFichaFisioterapia);
+    });
   });
 });
