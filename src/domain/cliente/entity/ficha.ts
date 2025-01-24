@@ -2,6 +2,7 @@ import DataGenerica from '../value-object/data-generica';
 import Cliente from './cliente';
 import { HistoriaPatologicaPregressa } from './enum/historia-patologica-pregressa';
 import { QualidadeAlimentacao } from './enum/qualidade-alimentacao';
+import { TipoFicha, TipoFichaEnum } from './enum/tipo-ficha';
 
 export default class Ficha {
   private _id: string;
@@ -14,6 +15,7 @@ export default class Ficha {
   private _qualidadeAlimentacao?: QualidadeAlimentacao;
   private _medicacoes?: string;
   private _observacoes?: string;
+  private _tipoFicha: TipoFicha = TipoFichaEnum.NAO_ESPECIFICADO;
 
   constructor(id: string, cliente: Cliente) {
     if (!id) {
@@ -88,5 +90,8 @@ export default class Ficha {
     historiaPatologicaPregressa: HistoriaPatologicaPregressa
   ): void {
     this._historiasPatologicasPregressas.delete(historiaPatologicaPregressa);
+  }
+  alterarTipoFicha(tipoFicha: TipoFicha): void {
+    this._tipoFicha = tipoFicha;
   }
 }

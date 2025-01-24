@@ -5,6 +5,7 @@ import { SexoEnum } from './enum/sexo';
 import DataGenerica from '../value-object/data-generica';
 import { HistoriaPatologicaPregressaEnum } from './enum/historia-patologica-pregressa';
 import { QualidadeAlimentacaoEnum } from './enum/qualidade-alimentacao';
+import { TipoFichaEnum } from './enum/tipo-ficha';
 
 describe('Ficha tests', () => {
   it('deve falhar quando id está vazio', () => {
@@ -32,7 +33,23 @@ describe('Ficha tests', () => {
     expect(ficha.cliente).toBe(cliente);
   });
 
-  describe('campos da ficha', () => {
+  it.each([...Object.values(TipoFichaEnum).map((t) => [t])])(
+    'deve alterar o tipo de ficha para "%s"',
+    (tipoFicha) => {
+      const cliente = new Cliente(
+        uuid(),
+        'Brands',
+        '12345678',
+        SexoEnum.MASCULINO
+      );
+      const ficha = new Ficha(uuid(), cliente);
+      ficha.alterarTipoFicha(tipoFicha);
+
+      expect(ficha.tipoFicha).toBe(tipoFicha);
+    }
+  );
+
+  describe('campos comuns das fichas', () => {
     let ficha: Ficha;
     beforeEach(() => {
       const cliente = new Cliente(
