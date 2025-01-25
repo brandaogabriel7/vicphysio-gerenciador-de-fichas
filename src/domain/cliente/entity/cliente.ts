@@ -1,5 +1,5 @@
 import DataNascimento from '../value-object/data-nascimento';
-import { Sexo, SexoEnum } from './sexo';
+import { Sexo, SexoEnum } from './enum/sexo';
 
 export default class Cliente {
   private _id: string;
