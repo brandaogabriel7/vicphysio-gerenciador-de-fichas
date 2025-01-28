@@ -117,7 +117,7 @@ describe('Cliente tests', () => {
 
       const dataNascimento = new DataNascimento('1990-01-01');
 
-      cliente.alterarDataAniversario(dataNascimento);
+      cliente.alterarDataNascimento(dataNascimento);
 
       expect(cliente.dataNascimento).toBe(dataNascimento);
     });
