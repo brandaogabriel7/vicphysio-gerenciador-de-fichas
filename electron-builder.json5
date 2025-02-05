@@ -1,25 +1,26 @@
 // @see - https://www.electron.build/configuration/configuration
 {
-  $schema: "https://raw.githubusercontent.com/electron-userland/electron-builder/master/packages/app-builder-lib/scheme.json",
-  appId: "net.gabrielbrandao.vicphysio-gerenciador-de-fichas",
+  $schema: 'https://raw.githubusercontent.com/electron-userland/electron-builder/master/packages/app-builder-lib/scheme.json',
+  appId: 'net.gabrielbrandao.vicphysio-gerenciador-de-fichas',
   asar: true,
-  productName: "VicPhysio - Gerenciador de Fichas",
+  productName: 'VicPhysio - Gerenciador de Fichas',
   directories: {
-    output: "release/${version}/${os}",
+    output: 'release/${version}/${os}',
   },
-  files: ["dist", "dist-electron"],
+  extraResources: ['./vicphysio.db'],
+  files: ['dist', 'dist-electron'],
   mac: {
-    target: ["dmg"],
-    artifactName: "${productName}-Mac-${version}-Installer.${ext}",
+    target: ['dmg'],
+    artifactName: '${productName}-Mac-${version}-Installer.${ext}',
   },
   win: {
     target: [
       {
-        target: "nsis",
-        arch: ["x64"],
+        target: 'nsis',
+        arch: ['x64'],
       },
     ],
-    artifactName: "${productName}-Windows-${version}-Setup.${ext}",
+    artifactName: '${productName}-Windows-${version}-Setup.${ext}',
   },
   nsis: {
     oneClick: false,
@@ -28,7 +29,7 @@
     deleteAppDataOnUninstall: false,
   },
   linux: {
-    target: ["AppImage"],
-    artifactName: "${productName}-Linux-${version}.${ext}",
+    target: ['AppImage'],
+    artifactName: '${productName}-Linux-${version}.${ext}',
   },
 }

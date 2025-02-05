@@ -69,11 +69,11 @@ export default class Cliente {
     return this._id;
   }
 
-  get name() {
+  get nome() {
     return this._nome;
   }
 
-  get rg() {
+  get numeroRg() {
     return this._numeroRg;
   }
 

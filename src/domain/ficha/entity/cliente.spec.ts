@@ -40,13 +40,13 @@ describe('Cliente tests', () => {
       const novoNome = 'Brandão';
       cliente.alterarNome(novoNome);
 
-      expect(cliente.name).toBe(novoNome);
+      expect(cliente.nome).toBe(novoNome);
     });
 
     it('deve retornar o nome do cliente', () => {
       const cliente = new Cliente(uuid(), 'Brands', '12345678');
 
-      expect(cliente.name).toBe('Brands');
+      expect(cliente.nome).toBe('Brands');
     });
   });
 
@@ -60,7 +60,7 @@ describe('Cliente tests', () => {
     it('deve retornar o numero de RG do cliente', () => {
       const cliente = new Cliente(uuid(), 'Brands', '12345678');
 
-      expect(cliente.rg).toBe('12345678');
+      expect(cliente.numeroRg).toBe('12345678');
     });
 
     it('deve falhar quando tentar alterar para numero de RG vazio', () => {
@@ -82,7 +82,7 @@ describe('Cliente tests', () => {
       const novoRg = '87654321';
       cliente.alterarRg(novoRg);
 
-      expect(cliente.rg).toBe(novoRg);
+      expect(cliente.numeroRg).toBe(novoRg);
     });
   });
 
