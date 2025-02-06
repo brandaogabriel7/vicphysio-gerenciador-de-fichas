@@ -26,27 +26,48 @@ describe('ClienteRepository - better-sqlite3', () => {
     await sequelize.close();
   });
 
-  it('deve criar novo cliente', async () => {
+  it.each([
+    {
+      dadosCliente: {
+        id: uuidv4(),
+        nome: 'Cliente 1',
+        numeroRg: '12345678',
+        sexo: SexoEnum.MASCULINO,
+        dataNascimento: '2001-03-08',
+        nomeCuidador: 'Cuidador 1',
+      },
+    },
+    {
+      dadosCliente: {
+        id: uuidv4(),
+        nome: 'Cliente 2',
+        numeroRg: '87654321',
+        sexo: SexoEnum.FEMININO,
+        dataNascimento: '2002-04-09',
+        nomeCuidador: 'Cuidador 2',
+      },
+    },
+    {
+      dadosCliente: {
+        id: uuidv4(),
+        nome: 'Cliente 3',
+        numeroRg: '12348765',
+      },
+    },
+  ])('deve criar novo cliente', async ({ dadosCliente }) => {
     const cliente = new Cliente(
-      uuidv4(),
-      'Cliente 1',
-      '12345678',
-      SexoEnum.MASCULINO,
-      new DataNascimento('2001-03-08'),
-      'Cuidador 1'
+      dadosCliente.id,
+      dadosCliente.nome,
+      dadosCliente.numeroRg,
+      dadosCliente.sexo,
+      dadosCliente.dataNascimento
+        ? new DataNascimento(dadosCliente.dataNascimento)
+        : undefined,
+      dadosCliente.nomeCuidador
     );
 
-    await clienteRepository.create(cliente);
+    const clienteCriado = await clienteRepository.create(cliente);
 
-    const clienteCriado = await clienteRepository.find(cliente.id);
-
-    expect(clienteCriado).toStrictEqual({
-      id: cliente.id,
-      nome: cliente.nome,
-      numeroRg: cliente.numeroRg,
-      sexo: cliente.sexo,
-      dataNascimento: cliente.dataNascimento,
-      nomeCuidador: cliente.nomeCuidador,
-    });
+    expect(clienteCriado).toStrictEqual(cliente);
   });
 });

@@ -8,6 +8,7 @@ export default class Data {
       throw new Error(mensagemErro);
     }
 
+    console.log('Data', data);
     this._valor = new Date(data);
 
     if (isNaN(this._valor.getTime())) {
