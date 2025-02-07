@@ -1,5 +1,7 @@
 import RepositoryInterface from '../../../../domain/@shared/repository/repository.interface';
 import Cliente from '../../../../domain/ficha/entity/cliente';
+import { Sexo } from '../../../../domain/ficha/entity/enum/sexo';
+import DataNascimento from '../../../../domain/ficha/value-object/data-nascimento';
 import ClienteModel from './cliente.model';
 
 export default class ClienteRepository implements RepositoryInterface<Cliente> {
@@ -43,13 +45,44 @@ export default class ClienteRepository implements RepositoryInterface<Cliente> {
       { where: { id: entity.id } }
     );
   }
-  delete(id: string): Promise<Cliente> {
-    throw new Error('Method not implemented.');
+  async delete(id: string): Promise<void> {
+    await ClienteModel.destroy({ where: { id } });
   }
-  find(id: string): Promise<Cliente> {
-    throw new Error('Method not implemented.');
+  async find(id: string): Promise<Cliente> {
+    const cliente = await ClienteModel.findOne({
+      where: { id },
+    });
+
+    if (!cliente) {
+      throw new Error('Cliente não encontrado');
+    }
+
+    return new Cliente(
+      cliente.id,
+      cliente.nome,
+      cliente.numeroRg,
+      cliente.sexo as Sexo,
+      cliente.dataNascimento
+        ? new DataNascimento(cliente.dataNascimento)
+        : undefined,
+      cliente.nomeCuidador
+    );
   }
-  findAll(): Promise<Cliente[]> {
-    throw new Error('Method not implemented.');
+  async findAll(): Promise<Cliente[]> {
+    const clientes = await ClienteModel.findAll();
+
+    return clientes.map(
+      (cliente) =>
+        new Cliente(
+          cliente.id,
+          cliente.nome,
+          cliente.numeroRg,
+          cliente.sexo as Sexo,
+          cliente.dataNascimento
+            ? new DataNascimento(cliente.dataNascimento)
+            : undefined,
+          cliente.nomeCuidador
+        )
+    );
   }
 }

@@ -159,4 +159,136 @@ describe('ClienteRepository - better-sqlite3', () => {
       'Cliente não encontrado'
     );
   });
+
+  it('deve deletar cliente', async () => {
+    const cliente = new Cliente(uuidv4(), 'Cliente 1', '12345678');
+
+    await ClienteModel.create({
+      id: cliente.id,
+      nome: cliente.nome,
+      numeroRg: cliente.numeroRg,
+    });
+
+    await clienteRepository.delete(cliente.id);
+
+    const clienteDeletado = await ClienteModel.findOne({
+      where: { id: cliente.id },
+    });
+
+    expect(clienteDeletado).toBeNull();
+  });
+
+  it('não deve lançar erro ao tentar deletar cliente inexistente', async () => {
+    const cliente = new Cliente(uuidv4(), 'Cliente 1', '12345678');
+
+    await expect(clienteRepository.delete(cliente.id)).resolves.not.toThrow();
+
+    const clienteDeletado = await ClienteModel.findOne({
+      where: { id: cliente.id },
+    });
+
+    expect(clienteDeletado).toBeNull();
+  });
+
+  it('deve buscar cliente', async () => {
+    const cliente = new Cliente(
+      uuidv4(),
+      'Cliente 1',
+      '12345678',
+      SexoEnum.MASCULINO,
+      new DataNascimento('2001-03-08'),
+      'Cuidador 1'
+    );
+
+    await ClienteModel.create({
+      id: cliente.id,
+      nome: cliente.nome,
+      numeroRg: cliente.numeroRg,
+      sexo: cliente.sexo,
+      dataNascimento: cliente.dataNascimento?.valor,
+      nomeCuidador: cliente.nomeCuidador,
+    });
+
+    const clienteBuscado = await clienteRepository.find(cliente.id);
+
+    expect(clienteBuscado?.id).toBe(cliente.id);
+    expect(clienteBuscado?.nome).toBe(cliente.nome);
+    expect(clienteBuscado?.numeroRg).toBe(cliente.numeroRg);
+    expect(clienteBuscado?.sexo).toBe(cliente.sexo);
+    expect(clienteBuscado?.dataNascimento).toStrictEqual(
+      cliente.dataNascimento
+    );
+    expect(clienteBuscado?.nomeCuidador).toBe(cliente.nomeCuidador);
+  });
+
+  it('deve lançar erro ao buscar cliente inexistente', async () => {
+    const cliente = new Cliente(uuidv4(), 'Cliente 1', '12345678');
+
+    await expect(clienteRepository.find(cliente.id)).rejects.toThrow(
+      'Cliente não encontrado'
+    );
+  });
+
+  it('deve buscar todos os clientes', async () => {
+    const cliente1 = new Cliente(
+      uuidv4(),
+      'Cliente 1',
+      '12345678',
+      SexoEnum.MASCULINO,
+      new DataNascimento('2001-03-08'),
+      'Cuidador 1'
+    );
+
+    const cliente2 = new Cliente(
+      uuidv4(),
+      'Cliente 2',
+      '87654321',
+      SexoEnum.FEMININO,
+      new DataNascimento('2002-04-09'),
+      'Cuidador 2'
+    );
+
+    const cliente3 = new Cliente(
+      uuidv4(),
+      'Cliente 3',
+      '12348765',
+      SexoEnum.MASCULINO,
+      new DataNascimento('2003-05-10'),
+      'Cuidador 3'
+    );
+
+    await ClienteModel.create({
+      id: cliente1.id,
+      nome: cliente1.nome,
+      numeroRg: cliente1.numeroRg,
+      sexo: cliente1.sexo,
+      dataNascimento: cliente1.dataNascimento?.valor,
+      nomeCuidador: cliente1.nomeCuidador,
+    });
+
+    await ClienteModel.create({
+      id: cliente2.id,
+      nome: cliente2.nome,
+      numeroRg: cliente2.numeroRg,
+      sexo: cliente2.sexo,
+      dataNascimento: cliente2.dataNascimento?.valor,
+      nomeCuidador: cliente2.nomeCuidador,
+    });
+
+    await ClienteModel.create({
+      id: cliente3.id,
+      nome: cliente3.nome,
+      numeroRg: cliente3.numeroRg,
+      sexo: cliente3.sexo,
+      dataNascimento: cliente3.dataNascimento?.valor,
+      nomeCuidador: cliente3.nomeCuidador,
+    });
+
+    const clientes = await clienteRepository.findAll();
+
+    expect(clientes).toHaveLength(3);
+    expect(clientes[0]).toStrictEqual(cliente1);
+    expect(clientes[1]).toStrictEqual(cliente2);
+    expect(clientes[2]).toStrictEqual(cliente3);
+  });
 });
