@@ -1,11 +1,17 @@
 import RepositoryInterface from '../../../../domain/@shared/repository/repository.interface';
 import Cliente from '../../../../domain/ficha/entity/cliente';
-import { Sexo } from '../../../../domain/ficha/entity/enum/sexo';
-import DataNascimento from '../../../../domain/ficha/value-object/data-nascimento';
 import ClienteModel from './cliente.model';
 
 export default class ClienteRepository implements RepositoryInterface<Cliente> {
-  async create(entity: Cliente): Promise<Cliente> {
+  async create(entity: Cliente): Promise<void> {
+    const clienteExistente = await ClienteModel.findOne({
+      where: { id: entity.id },
+    });
+
+    if (clienteExistente) {
+      throw new Error('Cliente já cadastrado');
+    }
+
     const dadosCliente = {
       id: entity.id,
       nome: entity.nome,
@@ -15,21 +21,27 @@ export default class ClienteRepository implements RepositoryInterface<Cliente> {
       nomeCuidador: entity?.nomeCuidador,
     };
 
-    const clienteCriado = await ClienteModel.create(dadosCliente);
-
-    return new Cliente(
-      clienteCriado.id,
-      clienteCriado.nome,
-      clienteCriado.numeroRg,
-      clienteCriado.sexo as Sexo,
-      clienteCriado.dataNascimento
-        ? new DataNascimento(clienteCriado.dataNascimento)
-        : undefined,
-      clienteCriado.nomeCuidador
-    );
+    await ClienteModel.create(dadosCliente);
   }
-  update(entity: Cliente): Promise<Cliente> {
-    throw new Error('Method not implemented.');
+  async update(entity: Cliente): Promise<void> {
+    const clienteExistente = await ClienteModel.findOne({
+      where: { id: entity.id },
+    });
+
+    if (!clienteExistente) {
+      throw new Error('Cliente não encontrado');
+    }
+
+    await ClienteModel.update(
+      {
+        nome: entity.nome,
+        numeroRg: entity.numeroRg,
+        sexo: entity.sexo,
+        dataNascimento: entity?.dataNascimento?.valor,
+        nomeCuidador: entity?.nomeCuidador,
+      },
+      { where: { id: entity.id } }
+    );
   }
   delete(id: string): Promise<Cliente> {
     throw new Error('Method not implemented.');

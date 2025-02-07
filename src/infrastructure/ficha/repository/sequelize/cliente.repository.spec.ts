@@ -52,6 +52,9 @@ describe('ClienteRepository - better-sqlite3', () => {
         id: uuidv4(),
         nome: 'Cliente 3',
         numeroRg: '12348765',
+        dataNascimento: '2003-05-10',
+        sexo: SexoEnum.MASCULINO,
+        nomeCuidador: 'Cuidador 3',
       },
     },
   ])('deve criar novo cliente', async ({ dadosCliente }) => {
@@ -66,8 +69,94 @@ describe('ClienteRepository - better-sqlite3', () => {
       dadosCliente.nomeCuidador
     );
 
-    const clienteCriado = await clienteRepository.create(cliente);
+    await clienteRepository.create(cliente);
 
-    expect(clienteCriado).toStrictEqual(cliente);
+    const clienteCriado = await ClienteModel.findOne({
+      where: { id: cliente.id },
+    });
+
+    expect(clienteCriado?.id).toBe(cliente.id);
+    expect(clienteCriado?.nome).toBe(cliente.nome);
+    expect(clienteCriado?.numeroRg).toBe(cliente.numeroRg);
+    expect(clienteCriado?.sexo).toBe(cliente.sexo);
+    expect(clienteCriado?.dataNascimento).toStrictEqual(
+      cliente.dataNascimento?.valor
+    );
+    expect(clienteCriado?.nomeCuidador).toBe(cliente.nomeCuidador);
+  });
+
+  it('deve lançar erro ao tentar criar cliente com id existente', async () => {
+    const cliente = new Cliente(uuidv4(), 'Cliente 1', '12345678');
+
+    await clienteRepository.create(cliente);
+
+    await expect(clienteRepository.create(cliente)).rejects.toThrow(
+      'Cliente já cadastrado'
+    );
+  });
+
+  it.each([
+    {
+      dadosCliente: {
+        id: uuidv4(),
+        nome: 'Cliente 1',
+        numeroRg: '12345678',
+        sexo: SexoEnum.MASCULINO,
+        dataNascimento: '2001-03-08',
+        nomeCuidador: 'Cuidador 1',
+      },
+      dadosClienteAtualizado: {
+        nome: 'Cliente 1 Atualizado',
+        sexo: SexoEnum.FEMININO,
+        numeroRg: '87654321',
+        dataNascimento: '2002-03-08',
+        nomeCuidador: 'Cuidador Atualizado',
+      },
+    },
+  ])(
+    'deve atualizar cliente',
+    async ({ dadosCliente, dadosClienteAtualizado }) => {
+      const cliente = new Cliente(
+        dadosCliente.id,
+        dadosCliente.nome,
+        dadosCliente.numeroRg,
+        dadosCliente.sexo,
+        new DataNascimento(dadosCliente.dataNascimento),
+        dadosCliente.nomeCuidador
+      );
+
+      await clienteRepository.create(cliente);
+
+      cliente.alterarNome(dadosClienteAtualizado.nome);
+      cliente.alterarSexo(dadosClienteAtualizado.sexo);
+      cliente.alterarDataNascimento(
+        new DataNascimento(dadosClienteAtualizado.dataNascimento)
+      );
+      cliente.alterarNomeCuidador('Cuidador Atualizado');
+      cliente.alterarRg('87654321');
+
+      await clienteRepository.update(cliente);
+
+      const clienteAtualizado = await ClienteModel.findOne({
+        where: { id: cliente.id },
+      });
+
+      expect(clienteAtualizado?.id).toBe(cliente.id);
+      expect(clienteAtualizado?.nome).toBe(cliente.nome);
+      expect(clienteAtualizado?.numeroRg).toBe(cliente.numeroRg);
+      expect(clienteAtualizado?.sexo).toBe(cliente.sexo);
+      expect(clienteAtualizado?.dataNascimento).toStrictEqual(
+        cliente.dataNascimento?.valor
+      );
+      expect(clienteAtualizado?.nomeCuidador).toBe(cliente.nomeCuidador);
+    }
+  );
+
+  it('deve lançar erro ao tentar atualizar cliente inexistente', async () => {
+    const cliente = new Cliente(uuidv4(), 'Cliente 1', '12345678');
+
+    await expect(clienteRepository.update(cliente)).rejects.toThrow(
+      'Cliente não encontrado'
+    );
   });
 });
