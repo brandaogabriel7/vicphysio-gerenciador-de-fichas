@@ -2,7 +2,7 @@ import Cliente from './cliente';
 import Ficha from './ficha';
 import { v4 as uuid } from 'uuid';
 import { SexoEnum } from './enum/sexo';
-import DataGenerica from '../value-object/data-generica';
+import Data from '../value-object/data';
 import { HistoriaPatologicaPregressaEnum } from './enum/historia-patologica-pregressa';
 import { QualidadeAlimentacaoEnum } from './enum/qualidade-alimentacao';
 import { TipoFichaEnum } from './enum/tipo-ficha';
@@ -64,7 +64,7 @@ describe('Ficha tests', () => {
     });
 
     it('deve alterar a data da ficha', () => {
-      const dataFicha = new DataGenerica(new Date());
+      const dataFicha = new Data(new Date());
       ficha.alterarDataFicha(dataFicha);
 
       expect(ficha.data).toBe(dataFicha);

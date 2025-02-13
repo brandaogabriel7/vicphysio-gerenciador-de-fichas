@@ -179,12 +179,12 @@ describe('ClienteRepository - better-sqlite3', () => {
   });
 
   it('não deve lançar erro ao tentar deletar cliente inexistente', async () => {
-    const cliente = new Cliente(uuidv4(), 'Cliente 1', '12345678');
+    const clienteId = uuidv4();
 
-    await expect(clienteRepository.delete(cliente.id)).resolves.not.toThrow();
+    await expect(clienteRepository.delete(clienteId)).resolves.not.toThrow();
 
     const clienteDeletado = await ClienteModel.findOne({
-      where: { id: cliente.id },
+      where: { id: clienteId },
     });
 
     expect(clienteDeletado).toBeNull();
