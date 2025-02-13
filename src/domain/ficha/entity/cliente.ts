@@ -14,14 +14,14 @@ export default class Cliente {
     nome: string,
     numeroRg: string,
     sexo: Sexo = SexoEnum.OUTRO,
-    dataAniversario?: DataNascimento,
+    dataNascimento?: DataNascimento,
     nomeCuidador?: string
   ) {
     this._id = id;
     this._nome = nome;
     this._numeroRg = numeroRg;
     this._sexo = sexo;
-    this._dataNascimento = dataAniversario;
+    this._dataNascimento = dataNascimento;
     this._nomeCuidador = nomeCuidador;
 
     this._validate();
@@ -57,8 +57,8 @@ export default class Cliente {
     this._sexo = sexo;
   }
 
-  alterarDataAniversario(dataAniversario: DataNascimento) {
-    this._dataNascimento = dataAniversario;
+  alterarDataNascimento(dataNascimento: DataNascimento) {
+    this._dataNascimento = dataNascimento;
   }
 
   alterarNomeCuidador(nomeCuidador: string) {
@@ -69,11 +69,11 @@ export default class Cliente {
     return this._id;
   }
 
-  get name() {
+  get nome() {
     return this._nome;
   }
 
-  get rg() {
+  get numeroRg() {
     return this._numeroRg;
   }
 

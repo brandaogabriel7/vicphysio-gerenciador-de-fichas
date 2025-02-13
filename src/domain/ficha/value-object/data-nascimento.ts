@@ -14,4 +14,8 @@ export default class DataNascimento {
   formatar(): string {
     return this._data.formatar();
   }
+
+  get valor(): Date {
+    return this._data.valor;
+  }
 }

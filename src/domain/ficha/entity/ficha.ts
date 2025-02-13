@@ -1,6 +1,6 @@
 import CamposFichaFisioterapia from '../value-object/campos-ficha-fisioterapia';
 import CamposFichaPilates from '../value-object/campos-ficha-pilates';
-import DataGenerica from '../value-object/data-generica';
+import Data from '../value-object/data';
 import Cliente from './cliente';
 import { HistoriaPatologicaPregressa } from './enum/historia-patologica-pregressa';
 import { QualidadeAlimentacao } from './enum/qualidade-alimentacao';
@@ -9,7 +9,7 @@ import { TipoFicha, TipoFichaEnum } from './enum/tipo-ficha';
 export default class Ficha {
   private _id: string;
   private _cliente: Cliente;
-  private _data?: DataGenerica;
+  private _data?: Data;
 
   private _historiaMolestiaAtual?: string;
   private _historiasPatologicasPregressas: Set<HistoriaPatologicaPregressa> =
@@ -44,7 +44,7 @@ export default class Ficha {
     return this._tipoFicha;
   }
 
-  get data(): DataGenerica | undefined {
+  get data(): Data | undefined {
     return this._data;
   }
 
@@ -83,7 +83,7 @@ export default class Ficha {
     return this._camposEspecificosFisioterapia;
   }
 
-  alterarDataFicha(data: DataGenerica): void {
+  alterarDataFicha(data: Data): void {
     this._data = data;
   }
 

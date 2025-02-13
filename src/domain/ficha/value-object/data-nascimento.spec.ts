@@ -4,6 +4,7 @@ describe('Data de nascimento tests', () => {
   it('deve criar uma data de nascimento quando passada uma string de data válida', () => {
     const dataNascimento = new DataNascimento('1993-01-02');
     expect(dataNascimento.formatar()).toBe('1993-01-02');
+    expect(dataNascimento.valor).toStrictEqual(new Date('1993-01-02'));
   });
 
   it('deve lançar um erro quando a string passada não for uma data válida', () => {
