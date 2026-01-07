@@ -69,7 +69,16 @@ app.on('activate', () => {
 });
 
 app.whenReady().then(async () => {
-  await initializeDatabase();
-  registerAllIpcHandlers();
-  createWindow();
+  try {
+    await initializeDatabase();
+    registerAllIpcHandlers();
+    createWindow();
+  } catch (error) {
+    const { dialog } = await import('electron');
+    dialog.showErrorBox(
+      'Startup Error',
+      `Failed to initialize application:\n\n${error instanceof Error ? error.message : String(error)}`
+    );
+    app.quit();
+  }
 });
