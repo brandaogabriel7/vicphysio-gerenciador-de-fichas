@@ -1,6 +1,7 @@
 import { Sequelize } from 'sequelize-typescript';
 import { app } from 'electron';
 import path from 'node:path';
+import BetterSqlite3 from 'better-sqlite3';
 import ClienteModel from '../../src/infrastructure/ficha/repository/sequelize/cliente.model';
 import FichaModel from '../../src/infrastructure/ficha/repository/sequelize/ficha.model';
 
@@ -18,6 +19,7 @@ export async function initializeDatabase(): Promise<Sequelize> {
 
   sequelize = new Sequelize({
     dialect: 'sqlite',
+    dialectModule: { Database: BetterSqlite3 },
     storage: dbPath,
     logging: false,
     models: [ClienteModel, FichaModel],
