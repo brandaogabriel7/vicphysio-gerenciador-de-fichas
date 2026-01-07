@@ -30,6 +30,16 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Set version from tag
+        run: |
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+            VERSION="${{ github.event.inputs.version }}"
+          else
+            VERSION=${GITHUB_REF#refs/tags/v}
+          fi
+          npm version $VERSION --no-git-tag-version --allow-same-version
+        shell: bash
+
       - name: Build Electron app for Linux
         run: npm run electron:build -- --linux
         env:
@@ -56,6 +66,16 @@ jobs:
 
       - name: Install dependencies
         run: npm ci
+
+      - name: Set version from tag
+        run: |
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+            VERSION="${{ github.event.inputs.version }}"
+          else
+            VERSION=${GITHUB_REF#refs/tags/v}
+          fi
+          npm version $VERSION --no-git-tag-version --allow-same-version
+        shell: bash
 
       - name: Build Electron app for Windows
         run: npm run electron:build -- --win
@@ -85,6 +105,16 @@ jobs:
 
       - name: Install dependencies
         run: npm ci
+
+      - name: Set version from tag
+        run: |
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+            VERSION="${{ github.event.inputs.version }}"
+          else
+            VERSION=${GITHUB_REF#refs/tags/v}
+          fi
+          npm version $VERSION --no-git-tag-version --allow-same-version
+        shell: bash
 
       - name: Build Electron app for macOS
         run: npm run electron:build -- --mac
