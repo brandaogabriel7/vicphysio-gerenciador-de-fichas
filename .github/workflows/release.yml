@@ -81,6 +81,7 @@ jobs:
         run: npm run electron:build -- --win
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # Code signing is optional - build will succeed without these secrets
           WIN_CSC_LINK: ${{ secrets.WIN_CSC_LINK }}
           WIN_CSC_KEY_PASSWORD: ${{ secrets.WIN_CSC_KEY_PASSWORD }}
 
@@ -120,6 +121,8 @@ jobs:
         run: npm run electron:build -- --mac
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # Code signing and notarization are optional - build will succeed without these secrets
+          CSC_IDENTITY_AUTO_DISCOVERY: false
           CSC_LINK: ${{ secrets.CSC_LINK }}
           CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}
           APPLE_ID: ${{ secrets.APPLE_ID }}
