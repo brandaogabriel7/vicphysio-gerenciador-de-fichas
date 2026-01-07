@@ -1,4 +1,4 @@
-import { renderHook, waitFor, act } from '@testing-library/react';
+import { renderHook, act } from '@testing-library/react';
 import { useClienteMutations } from './useClienteMutations';
 import { CreateClienteDTO, UpdateClienteDTO } from '../application/dto/cliente.dto';
 import { SexoEnum } from '../domain/ficha/entity/enum/sexo';
