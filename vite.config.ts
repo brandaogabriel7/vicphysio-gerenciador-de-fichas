@@ -24,6 +24,12 @@ export default ({ mode }: { mode: string }) => {
             // Shortcut of `build.lib.entry`.
             entry: 'electron/main.ts',
             vite: {
+              build: {
+                rollupOptions: {
+                  // better-sqlite3 is a native module - must be external
+                  external: ['better-sqlite3'],
+                },
+              },
               plugins: [
                 {
                   name: 'sequelize-dialect-stub',
