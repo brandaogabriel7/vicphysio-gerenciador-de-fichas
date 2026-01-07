@@ -1,6 +1,9 @@
+import 'reflect-metadata';
 import { app, BrowserWindow } from 'electron';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
+import { initializeDatabase } from './database/connection';
+import { registerAllIpcHandlers } from './ipc';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -65,4 +68,8 @@ app.on('activate', () => {
   }
 });
 
-app.whenReady().then(createWindow);
+app.whenReady().then(async () => {
+  await initializeDatabase();
+  registerAllIpcHandlers();
+  createWindow();
+});

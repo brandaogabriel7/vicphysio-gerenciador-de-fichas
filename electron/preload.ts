@@ -18,7 +18,13 @@ contextBridge.exposeInMainWorld('ipcRenderer', {
     const [channel, ...omit] = args;
     return ipcRenderer.invoke(channel, ...omit);
   },
+});
 
-  // You can expose other APTs you need here.
-  // ...
+// --------- Expose Cliente API ---------
+contextBridge.exposeInMainWorld('clienteApi', {
+  findAll: () => ipcRenderer.invoke('cliente:findAll'),
+  find: (id: string) => ipcRenderer.invoke('cliente:find', id),
+  create: (data: unknown) => ipcRenderer.invoke('cliente:create', data),
+  update: (data: unknown) => ipcRenderer.invoke('cliente:update', data),
+  delete: (id: string) => ipcRenderer.invoke('cliente:delete', id),
 });
