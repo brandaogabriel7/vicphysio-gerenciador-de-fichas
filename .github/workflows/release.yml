@@ -89,9 +89,10 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GYP_MSVS_VERSION: '2022'
-          # Code signing is optional - build will succeed without these secrets
-          WIN_CSC_LINK: ${{ secrets.WIN_CSC_LINK }}
-          WIN_CSC_KEY_PASSWORD: ${{ secrets.WIN_CSC_KEY_PASSWORD }}
+        # Code signing is optional - to enable, add WIN_CSC_LINK and WIN_CSC_KEY_PASSWORD secrets
+        # and uncomment the lines below:
+        # WIN_CSC_LINK: ${{ secrets.WIN_CSC_LINK }}
+        # WIN_CSC_KEY_PASSWORD: ${{ secrets.WIN_CSC_KEY_PASSWORD }}
 
       - name: Upload Windows artifact
         uses: actions/upload-artifact@v4
