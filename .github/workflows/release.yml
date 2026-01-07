@@ -71,9 +71,6 @@ jobs:
         run: choco install windows-sdk-10-version-2004-all -y
         shell: powershell
 
-      - name: Configure node-gyp
-        run: npm config set msvs_version 2022
-
       - name: Install dependencies
         run: npm ci
 
@@ -91,6 +88,7 @@ jobs:
         run: npm run electron:build -- --win
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GYP_MSVS_VERSION: '2022'
           # Code signing is optional - build will succeed without these secrets
           WIN_CSC_LINK: ${{ secrets.WIN_CSC_LINK }}
           WIN_CSC_KEY_PASSWORD: ${{ secrets.WIN_CSC_KEY_PASSWORD }}
@@ -102,55 +100,8 @@ jobs:
           path: release/**/windows/*.exe
           if-no-files-found: error
 
-  build-macos:
-    runs-on: macos-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Install Python setuptools
-        run: pip3 install --break-system-packages setuptools
-
-      - name: Set version from tag
-        run: |
-          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
-            VERSION="${{ github.event.inputs.version }}"
-          else
-            VERSION=${GITHUB_REF#refs/tags/v}
-          fi
-          npm version $VERSION --no-git-tag-version --allow-same-version
-        shell: bash
-
-      - name: Build Electron app for macOS
-        run: npm run electron:build -- --mac
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          # Code signing and notarization are optional - build will succeed without these secrets
-          CSC_IDENTITY_AUTO_DISCOVERY: false
-          CSC_LINK: ${{ secrets.CSC_LINK }}
-          CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}
-          APPLE_ID: ${{ secrets.APPLE_ID }}
-          APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
-          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
-
-      - name: Upload macOS artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: macos-build
-          path: release/**/mac/*.dmg
-          if-no-files-found: error
-
   create-release:
-    needs: [build-linux, build-windows, build-macos]
+    needs: [build-linux, build-windows]
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -182,12 +133,6 @@ jobs:
           name: windows-build
           path: artifacts/windows
 
-      - name: Download macOS artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: macos-build
-          path: artifacts/macos
-
       - name: List artifacts
         run: find artifacts -type f
 
@@ -201,6 +146,5 @@ jobs:
           files: |
             artifacts/**/*.AppImage
             artifacts/**/*.exe
-            artifacts/**/*.dmg
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
