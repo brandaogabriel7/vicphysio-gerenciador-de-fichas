@@ -98,7 +98,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: windows-build
-          path: release/**/windows/*.exe
+          path: release/**/win/*.exe
           if-no-files-found: error
 
   create-release:
