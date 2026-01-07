@@ -23,6 +23,47 @@ export default ({ mode }: { mode: string }) => {
           main: {
             // Shortcut of `build.lib.entry`.
             entry: 'electron/main.ts',
+            vite: {
+              plugins: [
+                {
+                  name: 'sequelize-dialect-stub',
+                  resolveId(id) {
+                    // Stub out Sequelize's optional DB dependencies
+                    // These are not needed since we only use SQLite
+                    const optionalDeps = [
+                      'pg',
+                      'pg-hstore',
+                      'mysql2',
+                      'mariadb',
+                      'tedious',
+                      'oracledb',
+                      'snowflake-sdk',
+                      'ibm_db',
+                    ];
+                    if (optionalDeps.includes(id)) {
+                      return id;
+                    }
+                    return null;
+                  },
+                  load(id) {
+                    const optionalDeps = [
+                      'pg',
+                      'pg-hstore',
+                      'mysql2',
+                      'mariadb',
+                      'tedious',
+                      'oracledb',
+                      'snowflake-sdk',
+                      'ibm_db',
+                    ];
+                    if (optionalDeps.includes(id)) {
+                      return 'export default {}';
+                    }
+                    return null;
+                  },
+                },
+              ],
+            },
           },
           preload: {
             // Shortcut of `build.rollupOptions.input`.
