@@ -36,22 +36,22 @@ export class WebClienteService implements ClienteService {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  async find(id: string): Promise<ClienteDTO> {
+  async find(_id: string): Promise<ClienteDTO> {
     throw new Error('Web service not implemented yet');
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  async create(data: CreateClienteDTO): Promise<void> {
+  async create(_data: CreateClienteDTO): Promise<void> {
     throw new Error('Web service not implemented yet');
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  async update(data: UpdateClienteDTO): Promise<void> {
+  async update(_data: UpdateClienteDTO): Promise<void> {
     throw new Error('Web service not implemented yet');
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  async delete(id: string): Promise<void> {
+  async delete(_id: string): Promise<void> {
     throw new Error('Web service not implemented yet');
   }
 }

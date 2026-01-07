@@ -2,7 +2,7 @@ import { useState, FormEvent, useEffect } from 'react';
 import { Input } from '../ui/Input';
 import { Select } from '../ui/Select';
 import { Button } from '../ui/Button';
-import { SexoEnum } from '../../domain/ficha/entity/enum/sexo';
+import { SexoEnum, Sexo } from '../../domain/ficha/entity/enum/sexo';
 import { ClienteDTO, CreateClienteDTO } from '../../application/dto/cliente.dto';
 
 interface ClienteFormProps {
@@ -24,7 +24,13 @@ export function ClienteForm({
   onCancel,
   isLoading = false,
 }: ClienteFormProps) {
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<{
+    nome: string;
+    numeroRg: string;
+    sexo: Sexo;
+    dataNascimento: string;
+    nomeCuidador: string;
+  }>({
     nome: '',
     numeroRg: '',
     sexo: SexoEnum.OUTRO,
