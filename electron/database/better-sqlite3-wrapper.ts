@@ -1,6 +1,18 @@
 import BetterSqlite3, { Database as BetterSqlite3Database } from 'better-sqlite3';
 
 /**
+ * Convert array of parameters to object for better-sqlite3 named parameters.
+ * Sequelize uses $1, $2, etc. which better-sqlite3 treats as named params.
+ */
+function arrayToNamedParams(params: unknown[]): Record<string, unknown> {
+  const result: Record<string, unknown> = {};
+  for (let i = 0; i < params.length; i++) {
+    result[(i + 1).toString()] = params[i];
+  }
+  return result;
+}
+
+/**
  * Wrapper that adapts better-sqlite3 to the sqlite3 callback-based API
  * that Sequelize v6 expects.
  */
@@ -34,7 +46,8 @@ class DatabaseWrapper {
     try {
       const stmt = this.db.prepare(sql);
       if (bindParams.length > 0) {
-        stmt.run(...bindParams);
+        // Convert array to named params object for $1, $2, etc. placeholders
+        stmt.run(arrayToNamedParams(bindParams as unknown[]));
       } else {
         stmt.run();
       }
@@ -65,12 +78,15 @@ class DatabaseWrapper {
       const stmt = this.db.prepare(sql);
       // Check if statement returns data
       if (stmt.reader) {
-        const rows = bindParams.length > 0 ? stmt.all(...bindParams) : stmt.all();
+        // Convert array to named params object for $1, $2, etc. placeholders
+        const rows = bindParams.length > 0
+          ? stmt.all(arrayToNamedParams(bindParams as unknown[]))
+          : stmt.all();
         process.nextTick(() => callback(null, rows));
       } else {
         // Non-SELECT statement, run it and return empty array
         if (bindParams.length > 0) {
-          stmt.run(...bindParams);
+          stmt.run(arrayToNamedParams(bindParams as unknown[]));
         } else {
           stmt.run();
         }
@@ -89,12 +105,15 @@ class DatabaseWrapper {
       const stmt = this.db.prepare(sql);
       // Check if statement returns data
       if (stmt.reader) {
-        const row = bindParams.length > 0 ? stmt.get(...bindParams) : stmt.get();
+        // Convert array to named params object for $1, $2, etc. placeholders
+        const row = bindParams.length > 0
+          ? stmt.get(arrayToNamedParams(bindParams as unknown[]))
+          : stmt.get();
         process.nextTick(() => callback(null, row));
       } else {
         // Non-SELECT statement, run it and return undefined
         if (bindParams.length > 0) {
-          stmt.run(...bindParams);
+          stmt.run(arrayToNamedParams(bindParams as unknown[]));
         } else {
           stmt.run();
         }
