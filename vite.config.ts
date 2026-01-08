@@ -27,7 +27,8 @@ export default ({ mode }: { mode: string }) => {
               build: {
                 rollupOptions: {
                   // better-sqlite3 is a native module - must be external
-                  external: ['better-sqlite3'],
+                  // moment must be external for Sequelize's dynamic require() to find it
+                  external: ['better-sqlite3', 'moment'],
                 },
               },
               plugins: [
