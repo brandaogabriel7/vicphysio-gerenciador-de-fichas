@@ -1,11 +1,16 @@
-import { createBrowserRouter, Navigate } from 'react-router-dom';
+import { createBrowserRouter, createHashRouter, Navigate } from 'react-router-dom';
 import { MainLayout } from '../components/layout/MainLayout';
 import { ClientesListPage } from '../pages/clientes/ClientesListPage';
 import { ClienteCreatePage } from '../pages/clientes/ClienteCreatePage';
 import { ClienteDetailPage } from '../pages/clientes/ClienteDetailPage';
 import { ClienteEditPage } from '../pages/clientes/ClienteEditPage';
 
-export const router = createBrowserRouter([
+// Use HashRouter for Electron (file:// protocol doesn't work with BrowserRouter)
+const createRouter = import.meta.env.VITE_BUILD_TARGET === 'electron'
+  ? createHashRouter
+  : createBrowserRouter;
+
+export const router = createRouter([
   {
     path: '/',
     element: <MainLayout><Navigate to="/clientes" replace /></MainLayout>,
