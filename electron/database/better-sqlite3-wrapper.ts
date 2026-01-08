@@ -5,9 +5,10 @@ import BetterSqlite3, { Database as BetterSqlite3Database } from 'better-sqlite3
  * that Sequelize v6 expects.
  */
 class DatabaseWrapper {
-  private db: BetterSqlite3Database;
+  private db!: BetterSqlite3Database;
 
-  constructor(filename: string, mode?: number, callback?: (err: Error | null) => void) {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  constructor(filename: string, _mode?: number, callback?: (err: Error | null) => void) {
     try {
       // better-sqlite3 is synchronous, so we just open the database
       this.db = new BetterSqlite3(filename);
