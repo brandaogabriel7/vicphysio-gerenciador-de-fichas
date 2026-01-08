@@ -2,6 +2,8 @@ import { Sequelize } from 'sequelize-typescript';
 import { app } from 'electron';
 import path from 'node:path';
 import BetterSqlite3Wrapper from './better-sqlite3-wrapper';
+// Explicitly import moment so Vite bundles it - Sequelize uses dynamic require
+import 'moment';
 import ClienteModel from '../../src/infrastructure/ficha/repository/sequelize/cliente.model';
 import FichaModel from '../../src/infrastructure/ficha/repository/sequelize/ficha.model';
 
