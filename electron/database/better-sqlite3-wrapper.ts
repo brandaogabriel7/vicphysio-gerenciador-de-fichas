@@ -29,9 +29,15 @@ class DatabaseWrapper {
     const callback = typeof params[params.length - 1] === 'function'
       ? params.pop() as (err: Error | null) => void
       : undefined;
+    const bindParams = params.length === 1 && Array.isArray(params[0]) ? params[0] : params;
 
     try {
-      this.db.exec(sql);
+      const stmt = this.db.prepare(sql);
+      if (bindParams.length > 0) {
+        stmt.run(...bindParams);
+      } else {
+        stmt.run();
+      }
       if (callback) process.nextTick(() => callback(null));
     } catch (error) {
       if (callback) process.nextTick(() => callback(error as Error));
@@ -57,8 +63,19 @@ class DatabaseWrapper {
 
     try {
       const stmt = this.db.prepare(sql);
-      const rows = bindParams.length > 0 ? stmt.all(...bindParams) : stmt.all();
-      process.nextTick(() => callback(null, rows));
+      // Check if statement returns data
+      if (stmt.reader) {
+        const rows = bindParams.length > 0 ? stmt.all(...bindParams) : stmt.all();
+        process.nextTick(() => callback(null, rows));
+      } else {
+        // Non-SELECT statement, run it and return empty array
+        if (bindParams.length > 0) {
+          stmt.run(...bindParams);
+        } else {
+          stmt.run();
+        }
+        process.nextTick(() => callback(null, []));
+      }
     } catch (error) {
       process.nextTick(() => callback(error as Error));
     }
@@ -70,8 +87,19 @@ class DatabaseWrapper {
 
     try {
       const stmt = this.db.prepare(sql);
-      const row = bindParams.length > 0 ? stmt.get(...bindParams) : stmt.get();
-      process.nextTick(() => callback(null, row));
+      // Check if statement returns data
+      if (stmt.reader) {
+        const row = bindParams.length > 0 ? stmt.get(...bindParams) : stmt.get();
+        process.nextTick(() => callback(null, row));
+      } else {
+        // Non-SELECT statement, run it and return undefined
+        if (bindParams.length > 0) {
+          stmt.run(...bindParams);
+        } else {
+          stmt.run();
+        }
+        process.nextTick(() => callback(null, undefined));
+      }
     } catch (error) {
       process.nextTick(() => callback(error as Error));
     }
