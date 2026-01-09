@@ -4,7 +4,7 @@ import BetterSqlite3, { Database as BetterSqlite3Database } from 'better-sqlite3
  * Convert a value to a SQLite-bindable type.
  * SQLite3 can only bind: numbers, strings, bigints, buffers, and null.
  */
-function toBindableValue(value: unknown): unknown {
+export function toBindableValue(value: unknown): unknown {
   if (value === null || value === undefined) {
     return null;
   }
@@ -24,7 +24,7 @@ function toBindableValue(value: unknown): unknown {
  * Convert array of parameters to object for better-sqlite3 named parameters.
  * Sequelize uses $1, $2, etc. which better-sqlite3 treats as named params.
  */
-function arrayToNamedParams(params: unknown[]): Record<string, unknown> {
+export function arrayToNamedParams(params: unknown[]): Record<string, unknown> {
   const result: Record<string, unknown> = {};
   for (let i = 0; i < params.length; i++) {
     result[(i + 1).toString()] = toBindableValue(params[i]);
@@ -33,18 +33,51 @@ function arrayToNamedParams(params: unknown[]): Record<string, unknown> {
 }
 
 /**
+ * Convert object parameters, applying toBindableValue to each value.
+ * Used when Sequelize passes parameters as an object like { "1": val1, "2": val2 }.
+ */
+export function toBindableParams(params: Record<string, unknown>): Record<string, unknown> {
+  const result: Record<string, unknown> = {};
+  for (const key in params) {
+    result[key] = toBindableValue(params[key]);
+  }
+  return result;
+}
+
+type BindParams = unknown[] | Record<string, unknown>;
+
+/**
+ * Prepare parameters for better-sqlite3.
+ * Handles both array and object parameter formats from Sequelize.
+ */
+function prepareParams(params: BindParams | undefined): Record<string, unknown> | undefined {
+  if (!params) return undefined;
+
+  if (Array.isArray(params)) {
+    if (params.length === 0) return undefined;
+    return arrayToNamedParams(params);
+  }
+
+  if (typeof params === 'object' && Object.keys(params).length > 0) {
+    return toBindableParams(params);
+  }
+
+  return undefined;
+}
+
+/**
  * Wrapper that adapts better-sqlite3 to the sqlite3 callback-based API
  * that Sequelize v6 expects.
+ *
+ * Sequelize calls: conn.run(sql, parameters, callback)
+ * Where parameters can be an array or object.
  */
 class DatabaseWrapper {
   private db!: BetterSqlite3Database;
 
   constructor(filename: string, _mode?: number, callback?: (err: Error | null) => void) {
     try {
-      // better-sqlite3 is synchronous, so we just open the database
       this.db = new BetterSqlite3(filename);
-
-      // Call callback on next tick to simulate async behavior
       if (callback) {
         process.nextTick(() => callback(null));
       }
@@ -57,17 +90,12 @@ class DatabaseWrapper {
     }
   }
 
-  run(sql: string, ...params: unknown[]): this {
-    const callback = typeof params[params.length - 1] === 'function'
-      ? params.pop() as (err: Error | null) => void
-      : undefined;
-    const bindParams = params.length === 1 && Array.isArray(params[0]) ? params[0] : params;
-
+  run(sql: string, params?: BindParams, callback?: (err: Error | null) => void): this {
     try {
       const stmt = this.db.prepare(sql);
-      if (bindParams.length > 0) {
-        // Convert array to named params object for $1, $2, etc. placeholders
-        stmt.run(arrayToNamedParams(bindParams as unknown[]));
+      const bindParams = prepareParams(params);
+      if (bindParams) {
+        stmt.run(bindParams);
       } else {
         stmt.run();
       }
@@ -90,57 +118,47 @@ class DatabaseWrapper {
     return this;
   }
 
-  all(sql: string, ...params: unknown[]): void {
-    const callback = params.pop() as (err: Error | null, rows?: unknown[]) => void;
-    const bindParams = params.length === 1 && Array.isArray(params[0]) ? params[0] : params;
-
+  all(sql: string, params?: BindParams, callback?: (err: Error | null, rows?: unknown[]) => void): void {
     try {
       const stmt = this.db.prepare(sql);
-      // Check if statement returns data
+      const bindParams = prepareParams(params);
+
       if (stmt.reader) {
-        // Convert array to named params object for $1, $2, etc. placeholders
-        const rows = bindParams.length > 0
-          ? stmt.all(arrayToNamedParams(bindParams as unknown[]))
-          : stmt.all();
-        process.nextTick(() => callback(null, rows));
+        const rows = bindParams ? stmt.all(bindParams) : stmt.all();
+        if (callback) process.nextTick(() => callback(null, rows));
       } else {
-        // Non-SELECT statement, run it and return empty array
-        if (bindParams.length > 0) {
-          stmt.run(arrayToNamedParams(bindParams as unknown[]));
+        // Non-SELECT statement
+        if (bindParams) {
+          stmt.run(bindParams);
         } else {
           stmt.run();
         }
-        process.nextTick(() => callback(null, []));
+        if (callback) process.nextTick(() => callback(null, []));
       }
     } catch (error) {
-      process.nextTick(() => callback(error as Error));
+      if (callback) process.nextTick(() => callback(error as Error));
     }
   }
 
-  get(sql: string, ...params: unknown[]): void {
-    const callback = params.pop() as (err: Error | null, row?: unknown) => void;
-    const bindParams = params.length === 1 && Array.isArray(params[0]) ? params[0] : params;
-
+  get(sql: string, params?: BindParams, callback?: (err: Error | null, row?: unknown) => void): void {
     try {
       const stmt = this.db.prepare(sql);
-      // Check if statement returns data
+      const bindParams = prepareParams(params);
+
       if (stmt.reader) {
-        // Convert array to named params object for $1, $2, etc. placeholders
-        const row = bindParams.length > 0
-          ? stmt.get(arrayToNamedParams(bindParams as unknown[]))
-          : stmt.get();
-        process.nextTick(() => callback(null, row));
+        const row = bindParams ? stmt.get(bindParams) : stmt.get();
+        if (callback) process.nextTick(() => callback(null, row));
       } else {
-        // Non-SELECT statement, run it and return undefined
-        if (bindParams.length > 0) {
-          stmt.run(arrayToNamedParams(bindParams as unknown[]));
+        // Non-SELECT statement
+        if (bindParams) {
+          stmt.run(bindParams);
         } else {
           stmt.run();
         }
-        process.nextTick(() => callback(null, undefined));
+        if (callback) process.nextTick(() => callback(null, undefined));
       }
     } catch (error) {
-      process.nextTick(() => callback(error as Error));
+      if (callback) process.nextTick(() => callback(error as Error));
     }
   }
 
