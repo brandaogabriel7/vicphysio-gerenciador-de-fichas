@@ -28,3 +28,13 @@ contextBridge.exposeInMainWorld('clienteApi', {
   update: (data: unknown) => ipcRenderer.invoke('cliente:update', data),
   delete: (id: string) => ipcRenderer.invoke('cliente:delete', id),
 });
+
+// --------- Expose Ficha API ---------
+contextBridge.exposeInMainWorld('fichaApi', {
+  findAll: () => ipcRenderer.invoke('ficha:findAll'),
+  findByCliente: (clienteId: string) => ipcRenderer.invoke('ficha:findByCliente', clienteId),
+  find: (id: string) => ipcRenderer.invoke('ficha:find', id),
+  create: (data: unknown) => ipcRenderer.invoke('ficha:create', data),
+  update: (data: unknown) => ipcRenderer.invoke('ficha:update', data),
+  delete: (id: string) => ipcRenderer.invoke('ficha:delete', id),
+});

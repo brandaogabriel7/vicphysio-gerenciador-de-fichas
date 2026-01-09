@@ -4,6 +4,9 @@ import { ClientesListPage } from '../pages/clientes/ClientesListPage';
 import { ClienteCreatePage } from '../pages/clientes/ClienteCreatePage';
 import { ClienteDetailPage } from '../pages/clientes/ClienteDetailPage';
 import { ClienteEditPage } from '../pages/clientes/ClienteEditPage';
+import { FichaCreatePage } from '../pages/fichas/FichaCreatePage';
+import { FichaDetailPage } from '../pages/fichas/FichaDetailPage';
+import { FichaEditPage } from '../pages/fichas/FichaEditPage';
 
 // Use HashRouter for Electron (file:// protocol doesn't work with BrowserRouter)
 const createRouter = import.meta.env.VITE_BUILD_TARGET === 'electron'
@@ -30,5 +33,17 @@ export const router = createRouter([
   {
     path: '/clientes/:id/editar',
     element: <MainLayout><ClienteEditPage /></MainLayout>,
+  },
+  {
+    path: '/clientes/:clienteId/fichas/novo',
+    element: <MainLayout><FichaCreatePage /></MainLayout>,
+  },
+  {
+    path: '/clientes/:clienteId/fichas/:fichaId',
+    element: <MainLayout><FichaDetailPage /></MainLayout>,
+  },
+  {
+    path: '/clientes/:clienteId/fichas/:fichaId/editar',
+    element: <MainLayout><FichaEditPage /></MainLayout>,
   },
 ]);
