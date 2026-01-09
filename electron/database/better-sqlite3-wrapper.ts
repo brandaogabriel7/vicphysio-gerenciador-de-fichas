@@ -90,18 +90,30 @@ class DatabaseWrapper {
     }
   }
 
-  run(sql: string, params?: BindParams, callback?: (err: Error | null) => void): this {
+  run(sql: string, params?: BindParams | ((err: Error | null) => void), callback?: (err: Error | null) => void): this {
+    // Handle case where params is actually the callback (called as db.run(sql, callback))
+    let actualParams: BindParams | undefined;
+    let actualCallback: ((err: Error | null) => void) | undefined;
+
+    if (typeof params === 'function') {
+      actualCallback = params;
+      actualParams = undefined;
+    } else {
+      actualParams = params;
+      actualCallback = callback;
+    }
+
     try {
       const stmt = this.db.prepare(sql);
-      const bindParams = prepareParams(params);
+      const bindParams = prepareParams(actualParams);
       if (bindParams) {
         stmt.run(bindParams);
       } else {
         stmt.run();
       }
-      if (callback) process.nextTick(() => callback(null));
+      if (actualCallback) process.nextTick(() => actualCallback!(null));
     } catch (error) {
-      if (callback) process.nextTick(() => callback(error as Error));
+      if (actualCallback) process.nextTick(() => actualCallback!(error as Error));
       else throw error;
     }
     return this;
@@ -118,14 +130,26 @@ class DatabaseWrapper {
     return this;
   }
 
-  all(sql: string, params?: BindParams, callback?: (err: Error | null, rows?: unknown[]) => void): void {
+  all(sql: string, params?: BindParams | ((err: Error | null, rows?: unknown[]) => void), callback?: (err: Error | null, rows?: unknown[]) => void): void {
+    // Handle case where params is actually the callback (called as db.all(sql, callback))
+    let actualParams: BindParams | undefined;
+    let actualCallback: ((err: Error | null, rows?: unknown[]) => void) | undefined;
+
+    if (typeof params === 'function') {
+      actualCallback = params as (err: Error | null, rows?: unknown[]) => void;
+      actualParams = undefined;
+    } else {
+      actualParams = params;
+      actualCallback = callback;
+    }
+
     try {
       const stmt = this.db.prepare(sql);
-      const bindParams = prepareParams(params);
+      const bindParams = prepareParams(actualParams);
 
       if (stmt.reader) {
         const rows = bindParams ? stmt.all(bindParams) : stmt.all();
-        if (callback) process.nextTick(() => callback(null, rows));
+        if (actualCallback) process.nextTick(() => actualCallback!(null, rows));
       } else {
         // Non-SELECT statement
         if (bindParams) {
@@ -133,21 +157,33 @@ class DatabaseWrapper {
         } else {
           stmt.run();
         }
-        if (callback) process.nextTick(() => callback(null, []));
+        if (actualCallback) process.nextTick(() => actualCallback!(null, []));
       }
     } catch (error) {
-      if (callback) process.nextTick(() => callback(error as Error));
+      if (actualCallback) process.nextTick(() => actualCallback!(error as Error));
     }
   }
 
-  get(sql: string, params?: BindParams, callback?: (err: Error | null, row?: unknown) => void): void {
+  get(sql: string, params?: BindParams | ((err: Error | null, row?: unknown) => void), callback?: (err: Error | null, row?: unknown) => void): void {
+    // Handle case where params is actually the callback (called as db.get(sql, callback))
+    let actualParams: BindParams | undefined;
+    let actualCallback: ((err: Error | null, row?: unknown) => void) | undefined;
+
+    if (typeof params === 'function') {
+      actualCallback = params as (err: Error | null, row?: unknown) => void;
+      actualParams = undefined;
+    } else {
+      actualParams = params;
+      actualCallback = callback;
+    }
+
     try {
       const stmt = this.db.prepare(sql);
-      const bindParams = prepareParams(params);
+      const bindParams = prepareParams(actualParams);
 
       if (stmt.reader) {
         const row = bindParams ? stmt.get(bindParams) : stmt.get();
-        if (callback) process.nextTick(() => callback(null, row));
+        if (actualCallback) process.nextTick(() => actualCallback!(null, row));
       } else {
         // Non-SELECT statement
         if (bindParams) {
@@ -155,10 +191,10 @@ class DatabaseWrapper {
         } else {
           stmt.run();
         }
-        if (callback) process.nextTick(() => callback(null, undefined));
+        if (actualCallback) process.nextTick(() => actualCallback!(null, undefined));
       }
     } catch (error) {
-      if (callback) process.nextTick(() => callback(error as Error));
+      if (actualCallback) process.nextTick(() => actualCallback!(error as Error));
     }
   }
 
