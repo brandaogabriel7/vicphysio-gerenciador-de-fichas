@@ -109,12 +109,15 @@ class DatabaseWrapper {
     try {
       const stmt = this.db.prepare(sql);
       const bindParams = prepareParams(actualParams);
-      if (bindParams) {
-        stmt.run(bindParams);
-      } else {
-        stmt.run();
+      const result = bindParams ? stmt.run(bindParams) : stmt.run();
+      if (actualCallback) {
+        // sqlite3 binds 'this' in callback to { changes, lastID }
+        const context = {
+          changes: result.changes,
+          lastID: Number(result.lastInsertRowid),
+        };
+        process.nextTick(() => actualCallback!.call(context, null));
       }
-      if (actualCallback) process.nextTick(() => actualCallback!(null));
     } catch (error) {
       if (actualCallback) process.nextTick(() => actualCallback!(error as Error));
       else throw error;

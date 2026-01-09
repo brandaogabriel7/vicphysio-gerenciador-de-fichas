@@ -194,6 +194,39 @@ describe('better-sqlite3-wrapper', () => {
         const rows = await promisify((cb) => db.all('SELECT * FROM test', undefined, cb)) as unknown[];
         expect(rows).toHaveLength(0);
       });
+
+      it('provides this.changes and this.lastID in callback context', async () => {
+        // Create a table with auto-increment
+        db.exec('CREATE TABLE autotest (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT)');
+
+        // Test INSERT - should have changes=1 and lastID set
+        const insertResult = await new Promise<{ changes: number; lastID: number }>((resolve, reject) => {
+          db.run('INSERT INTO autotest (name) VALUES ($1)', ['test'], function(this: { changes: number; lastID: number }, err: Error | null) {
+            if (err) reject(err);
+            else resolve({ changes: this.changes, lastID: this.lastID });
+          });
+        });
+        expect(insertResult.changes).toBe(1);
+        expect(insertResult.lastID).toBe(1);
+
+        // Insert another row
+        const insertResult2 = await new Promise<{ changes: number; lastID: number }>((resolve, reject) => {
+          db.run('INSERT INTO autotest (name) VALUES ($1)', ['test2'], function(this: { changes: number; lastID: number }, err: Error | null) {
+            if (err) reject(err);
+            else resolve({ changes: this.changes, lastID: this.lastID });
+          });
+        });
+        expect(insertResult2.lastID).toBe(2);
+
+        // Test UPDATE - should have changes reflecting updated rows
+        const updateResult = await new Promise<{ changes: number; lastID: number }>((resolve, reject) => {
+          db.run('UPDATE autotest SET name = $1', ['updated'], function(this: { changes: number; lastID: number }, err: Error | null) {
+            if (err) reject(err);
+            else resolve({ changes: this.changes, lastID: this.lastID });
+          });
+        });
+        expect(updateResult.changes).toBe(2);
+      });
     });
 
     describe('all()', () => {
