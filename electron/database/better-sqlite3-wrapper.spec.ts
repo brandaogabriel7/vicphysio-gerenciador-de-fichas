@@ -7,9 +7,9 @@ import BetterSqlite3Wrapper, {
 } from './better-sqlite3-wrapper';
 
 // Helper to promisify callback-based methods
-function promisify<T>(
-  fn: (callback: (err: Error | null, result?: T) => void) => void
-): Promise<T | undefined> {
+function promisify(
+  fn: (callback: (err: Error | null, result?: unknown) => void) => void
+): Promise<unknown> {
   return new Promise((resolve, reject) => {
     fn((err, result) => {
       if (err) reject(err);
@@ -140,9 +140,9 @@ describe('better-sqlite3-wrapper', () => {
           db.run('INSERT INTO test (id, name, value) VALUES ($1, $2, $3)', ['id1', 'test', 42], cb)
         );
         // Verify insert worked
-        const row = await promisify<{ id: string }>((cb) =>
+        const row = await promisify((cb) =>
           db.get('SELECT * FROM test WHERE id = $1', ['id1'], cb)
-        );
+        ) as { id: string } | undefined;
         expect(row?.id).toBe('id1');
       });
 
@@ -154,9 +154,9 @@ describe('better-sqlite3-wrapper', () => {
             cb
           )
         );
-        const row = await promisify<{ id: string }>((cb) =>
+        const row = await promisify((cb) =>
           db.get('SELECT * FROM test WHERE id = $1', ['id1'], cb)
-        );
+        ) as { id: string } | undefined;
         expect(row?.id).toBe('id1');
       });
 
@@ -165,9 +165,9 @@ describe('better-sqlite3-wrapper', () => {
         await promisifyVoid((cb) =>
           db.run('INSERT INTO test (id, name, created_at) VALUES ($1, $2, $3)', ['id1', 'test', date], cb)
         );
-        const row = await promisify<{ created_at: string }>((cb) =>
+        const row = await promisify((cb) =>
           db.get('SELECT created_at FROM test WHERE id = $1', ['id1'], cb)
-        );
+        ) as { created_at: string } | undefined;
         expect(row?.created_at).toBe('2024-01-15T10:30:00.000Z');
       });
 
@@ -178,7 +178,7 @@ describe('better-sqlite3-wrapper', () => {
         );
         // Then delete all
         await promisifyVoid((cb) => db.run('DELETE FROM test', undefined, cb));
-        const rows = await promisify<unknown[]>((cb) => db.all('SELECT * FROM test', undefined, cb));
+        const rows = await promisify((cb) => db.all('SELECT * FROM test', undefined, cb)) as unknown[];
         expect(rows).toHaveLength(0);
       });
     });
@@ -197,25 +197,25 @@ describe('better-sqlite3-wrapper', () => {
       });
 
       it('returns all rows without parameters', async () => {
-        const rows = await promisify<unknown[]>((cb) =>
+        const rows = await promisify((cb) =>
           db.all('SELECT * FROM test ORDER BY id', undefined, cb)
-        );
+        ) as unknown[];
         expect(rows).toHaveLength(3);
       });
 
       it('returns filtered rows with array parameters', async () => {
-        const rows = await promisify<unknown[]>((cb) =>
+        const rows = await promisify((cb) =>
           db.all('SELECT * FROM test WHERE value > $1', [1], cb)
-        );
+        ) as unknown[];
         expect(rows).toHaveLength(2);
       });
 
       it('returns filtered rows with object parameters', async () => {
-        const rows = await promisify<{ id: string }[]>((cb) =>
+        const rows = await promisify((cb) =>
           db.all('SELECT * FROM test WHERE name = $1', { '1': 'second' }, cb)
-        );
+        ) as { id: string }[];
         expect(rows).toHaveLength(1);
-        expect(rows?.[0].id).toBe('id2');
+        expect(rows[0].id).toBe('id2');
       });
     });
 
@@ -227,23 +227,23 @@ describe('better-sqlite3-wrapper', () => {
       });
 
       it('returns single row with array parameters', async () => {
-        const row = await promisify<{ name: string }>((cb) =>
+        const row = await promisify((cb) =>
           db.get('SELECT * FROM test WHERE id = $1', ['id1'], cb)
-        );
+        ) as { name: string } | undefined;
         expect(row).toBeDefined();
         expect(row?.name).toBe('first');
       });
 
       it('returns single row with object parameters', async () => {
-        const row = await promisify<{ name: string }>((cb) =>
+        const row = await promisify((cb) =>
           db.get('SELECT * FROM test WHERE id = $1', { '1': 'id1' }, cb)
-        );
+        ) as { name: string } | undefined;
         expect(row).toBeDefined();
         expect(row?.name).toBe('first');
       });
 
       it('returns undefined for no match', async () => {
-        const row = await promisify<unknown>((cb) =>
+        const row = await promisify((cb) =>
           db.get('SELECT * FROM test WHERE id = $1', ['nonexistent'], cb)
         );
         expect(row).toBeUndefined();
@@ -259,7 +259,7 @@ describe('better-sqlite3-wrapper', () => {
             cb
           )
         );
-        const rows = await promisify<unknown[]>((cb) => db.all('SELECT * FROM test', undefined, cb));
+        const rows = await promisify((cb) => db.all('SELECT * FROM test', undefined, cb)) as unknown[];
         expect(rows).toHaveLength(2);
       });
     });
