@@ -1,13 +1,33 @@
 import BetterSqlite3, { Database as BetterSqlite3Database } from 'better-sqlite3';
 
 /**
+ * Convert a value to a SQLite-bindable type.
+ * SQLite3 can only bind: numbers, strings, bigints, buffers, and null.
+ */
+function toBindableValue(value: unknown): unknown {
+  if (value === null || value === undefined) {
+    return null;
+  }
+  if (value instanceof Date) {
+    return value.toISOString();
+  }
+  if (typeof value === 'boolean') {
+    return value ? 1 : 0;
+  }
+  if (typeof value === 'object' && !(value instanceof Buffer)) {
+    return JSON.stringify(value);
+  }
+  return value;
+}
+
+/**
  * Convert array of parameters to object for better-sqlite3 named parameters.
  * Sequelize uses $1, $2, etc. which better-sqlite3 treats as named params.
  */
 function arrayToNamedParams(params: unknown[]): Record<string, unknown> {
   const result: Record<string, unknown> = {};
   for (let i = 0; i < params.length; i++) {
-    result[(i + 1).toString()] = params[i];
+    result[(i + 1).toString()] = toBindableValue(params[i]);
   }
   return result;
 }
