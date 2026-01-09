@@ -34,12 +34,15 @@ export function arrayToNamedParams(params: unknown[]): Record<string, unknown> {
 
 /**
  * Convert object parameters, applying toBindableValue to each value.
- * Used when Sequelize passes parameters as an object like { "1": val1, "2": val2 }.
+ * Sequelize passes params as { "$1": val1, "$2": val2 } but better-sqlite3
+ * expects { "1": val1, "2": val2 } (without dollar sign).
  */
 export function toBindableParams(params: Record<string, unknown>): Record<string, unknown> {
   const result: Record<string, unknown> = {};
   for (const key in params) {
-    result[key] = toBindableValue(params[key]);
+    // Strip leading $ from keys (Sequelize uses $1, $2 but better-sqlite3 expects 1, 2)
+    const cleanKey = key.startsWith('$') ? key.slice(1) : key;
+    result[cleanKey] = toBindableValue(params[key]);
   }
   return result;
 }

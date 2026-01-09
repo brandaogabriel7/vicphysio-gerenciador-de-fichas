@@ -119,6 +119,19 @@ describe('better-sqlite3-wrapper', () => {
         nome: 'João',
       });
     });
+
+    it('strips dollar sign from keys (Sequelize format)', () => {
+      const result = toBindableParams({
+        '$1': 'first',
+        '$2': 'second',
+        '$nome': 'João',
+      });
+      expect(result).toEqual({
+        '1': 'first',
+        '2': 'second',
+        nome: 'João',
+      });
+    });
   });
 
   describe('DatabaseWrapper', () => {
